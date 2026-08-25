@@ -1,0 +1,19 @@
+{
+  "name": "taskflow-api",
+  "version": "1.0.0",
+  "description": "API simples de lista de tarefas (to-do list) usada como projeto de exemplo para a disciplina DevOps na Prática.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "lint": "eslint src tests --ext .js",
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
