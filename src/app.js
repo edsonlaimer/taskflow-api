@@ -3,13 +3,33 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+// Logging estruturado de cada requisição — método, rota, status e tempo de resposta.
+// Serve como base de observabilidade para a Fase 2 (Monitoramento e Logging).
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        path: req.originalUrl,
+        status: res.statusCode,
+        duration_ms: duration,
+      })
+    );
+  });
+  next();
+});
+
 // "Banco de dados" em memória — suficiente para os fins da disciplina.
 let tasks = [];
 let nextId = 1;
 
 // Health check — usado pelo pipeline de CI e por monitoramento de infraestrutura.
+// Inclui uptime do processo para servir de sinal básico de monitoramento (Fase 2).
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'ok', uptime_s: Math.round(process.uptime()) });
 });
 
 app.get('/tasks', (req, res) => {

@@ -21,7 +21,7 @@ locals {
   }
 }
 
-# Usa a VPC padrão da conta para manter a infraestrutura simples nesta fase inicial.
+# Usa a VPC padrão da conta para manter a infraestrutura desta fase inicial simples.
 data "aws_vpc" "default" {
   default = true
 }

@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Lint, testes e build da imagem
+    name: Lint, testes e build da imagem (CI)
     runs-on: ubuntu-latest
 
     steps:
@@ -32,3 +32,34 @@ jobs:
 
       - name: Build da imagem Docker
         run: docker build -t taskflow-api:${{ github.sha }} .
+
+  publish-image:
+    name: Publicar imagem no GHCR (CD)
+    # Só roda após o CI passar, e só para pushes reais na main (não em pull requests),
+    # garantindo que apenas código já validado gere uma imagem publicada.
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/taskflow-api:latest
+            ghcr.io/${{ github.repository_owner }}/taskflow-api:${{ github.sha }}

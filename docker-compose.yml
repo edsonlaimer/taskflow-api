@@ -1,0 +1,19 @@
+services:
+  taskflow-api:
+    # Localmente/no CI, builda a partir do Dockerfile (imagem padrão taskflow-api:latest).
+    # No deploy, IMAGE é exportada apontando para a tag publicada no GHCR,
+    # e o docker compose usa a imagem baixada em vez de buildar.
+    build: .
+    image: ${IMAGE:-taskflow-api:latest}
+    container_name: taskflow-api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
